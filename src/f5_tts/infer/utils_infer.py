@@ -303,7 +303,6 @@ def load_duration_model(hf_model_name_or_path="lucasnewman/f5-tts-mlx"):
             checkpoint_param = weights[key]
             model_param_shape = duration_predictor.state_dict()[key].shape
             try:
-                raise Exception
                 checkpoint_param = checkpoint_param.permute(0, 2, 1)
                 print(checkpoint_param.shape)
                 new_state_dict[key] = checkpoint_param
@@ -409,7 +408,7 @@ def infer_process(
     gen_text,
     model_obj,
     vocoder,
-    prediction_model=None,
+    duration_model=None,
     mel_spec_type=mel_spec_type,
     show_info=print,
     progress=tqdm,
@@ -436,7 +435,7 @@ def infer_process(
         gen_text_batches,
         model_obj,
         vocoder,
-        prediction_model=prediction_model,
+        duration_model=duration_model,
         mel_spec_type=mel_spec_type,
         progress=progress,
         target_rms=target_rms,
@@ -459,7 +458,7 @@ def infer_batch_process(
     gen_text_batches,
     model_obj,
     vocoder,
-    prediction_model=None,
+    duration_model=None,
     mel_spec_type="vocos",
     progress=tqdm,
     target_rms=0.1,
@@ -467,7 +466,7 @@ def infer_batch_process(
     nfe_step=32,
     cfg_strength=2.0,
     sway_sampling_coef=-1,
-    speed=0.8,
+    speed=1.0,
     fix_duration=None,
     device=None,
 ):
@@ -494,17 +493,23 @@ def infer_batch_process(
         final_text_list = convert_char_to_pinyin(text_list)
 
         ref_audio_len = audio.shape[-1] // hop_length
+        duration = None
         if fix_duration is not None:
             duration = int(fix_duration * target_sample_rate / hop_length)
-        elif prediction_model:
-            duration_in_sec = prediction_model(audio, text_list)
+        elif duration_model:
+            import time
+
+            start_time = time.time()
+            duration_in_sec = duration_model(audio, text_list)
             print(duration_in_sec)
             frame_rate = model_obj.mel_spec.target_sample_rate // model_obj.mel_spec.hop_length
             duration = (duration_in_sec * frame_rate / speed).to(torch.long).item()
             print(f"Got duration of {duration} frames ({duration_in_sec.item()} secs) for generated speech")
+            end_time = time.time()
+            t_time = end_time - start_time
+            print(f"Duration model took: {t_time} seconds")
 
         if duration is None:
-            # Calculate duration
             ref_text_len = len(ref_text.encode("utf-8"))
             gen_text_len = len(gen_text.encode("utf-8"))
             duration = ref_audio_len + int(ref_audio_len / ref_text_len * gen_text_len / speed)

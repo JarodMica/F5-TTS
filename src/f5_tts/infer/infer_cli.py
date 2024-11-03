@@ -84,7 +84,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--duration_model", type=bool, default=False, help="Leverage a duration model to predict the duration"
+    "--duration_model",
+    type=str,
+    choices=["true", "false"],
+    default="false",
+    help='Leverage a duration model to predict the duration. Choices are ["true", "false"].',
 )
 args = parser.parse_args()
 
@@ -94,6 +98,7 @@ ref_audio = args.ref_audio if args.ref_audio else config["ref_audio"]
 ref_text = args.ref_text if args.ref_text != "666" else config["ref_text"]
 gen_text = args.gen_text if args.gen_text else config["gen_text"]
 gen_file = args.gen_file if args.gen_file else config["gen_file"]
+args.duration_model = True if args.duration_model.lower() == "true" else False
 predict_duration = args.duration_model if args.duration_model else config["duration_model"]
 
 # patches for pip pkg user
@@ -163,10 +168,12 @@ print(f"Using {model}...")
 ema_model = load_model(model_cls, model_cfg, ckpt_file, mel_spec_type=args.vocoder_name, vocab_file=vocab_file)
 
 if predict_duration:
-    prediction_model = load_duration_model()
+    duration_model = load_duration_model()
+else:
+    duration_model = None
 
 
-def main_process(ref_audio, ref_text, text_gen, model_obj, mel_spec_type, remove_silence, speed, prediction_model):
+def main_process(ref_audio, ref_text, text_gen, model_obj, mel_spec_type, remove_silence, speed, duration_model):
     main_voice = {"ref_audio": ref_audio, "ref_text": ref_text}
     if "voices" not in config:
         voices = {"main": main_voice}
@@ -202,13 +209,17 @@ def main_process(ref_audio, ref_text, text_gen, model_obj, mel_spec_type, remove
         ref_audio = voices[voice]["ref_audio"]
         ref_text = voices[voice]["ref_text"]
         print(f"Voice: {voice}")
+
+        # import time
+        # start_time = time.time()
+
         audio, final_sample_rate, spectragram = infer_process(
             ref_audio,
             ref_text,
             gen_text,
             model_obj,
             vocoder,
-            prediction_model=prediction_model,
+            duration_model=duration_model,
             mel_spec_type=mel_spec_type,
             speed=speed,
         )
@@ -225,11 +236,14 @@ def main_process(ref_audio, ref_text, text_gen, model_obj, mel_spec_type, remove
             # Remove silence
             if remove_silence:
                 remove_silence_for_generated_wav(f.name)
+            # end_time = time.time()
+            # time_passed = end_time - start_time
+            # print(f"Time passed: {time_passed}")
             print(f.name)
 
 
 def main():
-    main_process(ref_audio, ref_text, gen_text, ema_model, mel_spec_type, remove_silence, speed, prediction_model)
+    main_process(ref_audio, ref_text, gen_text, ema_model, mel_spec_type, remove_silence, speed, duration_model)
 
 
 if __name__ == "__main__":

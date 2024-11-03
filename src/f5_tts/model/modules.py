@@ -908,7 +908,7 @@ class DurationPredictor(nn.Module):
 
         if seq_len < text.shape[1]:
             seq_len = text.shape[1]
-            inp = F.pad(inp, [(0, 0), (0, seq_len - inp.shape[1]), (0, 0)])
+            inp = F.pad(inp, (0, 0, 0, seq_len - inp.shape[1]))
 
         # lens and mask
         if not exists(lens):
@@ -916,7 +916,7 @@ class DurationPredictor(nn.Module):
 
         if seq_len < text.shape[1]:
             seq_len = text.shape[1]
-            inp = F.pad(inp, [(0, 0), (0, seq_len - inp.shape[1]), (0, 0)])
+            inp = F.pad(inp, (0, 0, 0, seq_len - inp.shape[1]))
 
         mask = lens_to_mask(lens, length=seq_len)
 
