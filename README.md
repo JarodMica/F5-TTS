@@ -25,6 +25,13 @@ I won't be as active in keeping up with all the updates to the main repo, so if 
 ## News
 - **2024/10/08**: F5-TTS & E2 TTS base models on [🤗 Hugging Face](https://huggingface.co/SWivid/F5-TTS), [🤖 Model Scope](https://www.modelscope.cn/models/SWivid/F5-TTS_Emilia-ZH-EN), [🟣 Wisemodel](https://wisemodel.cn/models/SJTU_X-LANCE/F5-TTS_Emilia-ZH-EN).
 
+## Prerequisites
+- Python 3.11 - https://www.python.org/downloads/release/python-3119/
+- git - https://git-scm.com/downloads/win
+- ffmpeg: https://www.ffmpeg.org/download.html#build-windows
+  - Watch a tutorial here: https://www.youtube.com/watch?v=JR36oH35Fgg&t=159s&ab_channel=Koolac
+- Nvidia GPU with more than 8gb of VRAM 
+
 ## Installation
 
 ```bash
