@@ -934,7 +934,7 @@ class DurationPredictor(nn.Module):
         mask.to(self.device)
         inp.to(self.device)
 
-        inp = torch.where(repeat(mask, "b n -> b n d", d=self.num_channels).to(self.device), inp, torch.zeros_like(inp))
+        inp = torch.where(repeat(mask, "b n -> b n d", d=self.num_channels).to(self.device), inp, torch.zeros_like(inp).to(self.device))
 
         x = self.transformer(inp, text=text)
 

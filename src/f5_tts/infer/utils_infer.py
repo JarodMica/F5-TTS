@@ -494,6 +494,7 @@ def infer_batch_process(
         final_text_list = convert_char_to_pinyin(text_list)
 
         ref_audio_len = audio.shape[-1] // hop_length
+        duration=None
         if fix_duration is not None:
             duration = int(fix_duration * target_sample_rate / hop_length)
         elif prediction_model:

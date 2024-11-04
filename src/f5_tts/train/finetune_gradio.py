@@ -1208,7 +1208,7 @@ def get_random_sample_infer(project_name):
     )
 
 
-def infer(project, file_checkpoint, exp_name, ref_text, ref_audio, gen_text, nfe_step, use_ema):
+def infer(project, file_checkpoint, exp_name, ref_text, ref_audio, gen_text, nfe_step, use_ema, speed_slider):
     global last_checkpoint, last_device, tts_api, last_ema
 
     if not os.path.isfile(file_checkpoint):
@@ -1238,7 +1238,7 @@ def infer(project, file_checkpoint, exp_name, ref_text, ref_audio, gen_text, nfe
         print("update >> ", device_test, file_checkpoint, use_ema)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-        tts_api.infer(gen_text=gen_text, ref_text=ref_text, ref_file=ref_audio, nfe_step=nfe_step, file_wave=f.name)
+        tts_api.infer(gen_text=gen_text, ref_text=ref_text, ref_file=ref_audio, nfe_step=nfe_step, file_wave=f.name, speed=speed_slider)
         return f.name, tts_api.device
 
 
@@ -1387,7 +1387,7 @@ For tutorial and updates check here (https://github.com/SWivid/F5-TTS/discussion
 
     with gr.Row():
         projects, projects_selelect = get_list_projects()
-        tokenizer_type = gr.Radio(label="Tokenizer Type", choices=["pinyin", "char", "custom"], value="pinyin")
+        tokenizer_type = gr.Radio(label="Tokenizer Type", choices=["pinyin", "char"], value="pinyin")
         project_name = gr.Textbox(label="Project Name", value="my_speak")
         bt_create = gr.Button("Create a New Project")
 
@@ -1739,6 +1739,7 @@ SOS: Check the use_ema setting (True or False) for your model to see what works 
 
             nfe_step = gr.Number(label="NFE Step", value=32)
             ch_use_ema = gr.Checkbox(label="Use EMA", value=True)
+            speed_slider = gr.Slider(label="Speed", minimum=0.1, maximum=2.0, step=0.1, value=1.0)
             with gr.Row():
                 cm_checkpoint = gr.Dropdown(
                     choices=list_checkpoints, value=checkpoint_select, label="Checkpoints", allow_custom_value=True
@@ -1763,7 +1764,7 @@ SOS: Check the use_ema setting (True or False) for your model to see what works 
 
             check_button_infer.click(
                 fn=infer,
-                inputs=[cm_project, cm_checkpoint, exp_name, ref_text, ref_audio, gen_text, nfe_step, ch_use_ema],
+                inputs=[cm_project, cm_checkpoint, exp_name, ref_text, ref_audio, gen_text, nfe_step, ch_use_ema, speed_slider],
                 outputs=[gen_audio, txt_info_gpu],
             )
 
