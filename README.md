@@ -43,7 +43,7 @@ Then you can choose from a few options below:
 ### 1. As a pip package (if just for inference)
 
 ```bash
-pip install https://github.com/JarodMica/F5-TTS.git
+pip install git+https://github.com/JarodMica/F5-TTS.git
 ```
 
 ### 2. Local editable (if also do training, finetuning)
