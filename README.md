@@ -1,5 +1,11 @@
-# F5-TTS: A Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching
+# Details of This Fork
+This mainly differs by adding the Duration Predictor from: https://github.com/lucasnewman/f5-tts-mlx.
 
+The authors had reasons to not merge into the main repo as discussed here: https://github.com/SWivid/F5-TTS/pull/363 so I am maintaining a fork here with it.
+
+I won't be as active in keeping up with all the updates to the main repo, so if you're looking for the most up-to-date code, please refer to: https://github.com/SWivid/F5-TTS
+
+# F5-TTS: A Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching
 [![python](https://img.shields.io/badge/Python-3.10-brightgreen)](https://github.com/SWivid/F5-TTS)
 [![arXiv](https://img.shields.io/badge/arXiv-2410.06885-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2410.06885)
 [![demo](https://img.shields.io/badge/GitHub-Demo%20page-orange.svg)](https://swivid.github.io/F5-TTS/)
@@ -37,18 +43,18 @@ Then you can choose from a few options below:
 ### 1. As a pip package (if just for inference)
 
 ```bash
-pip install git+https://github.com/SWivid/F5-TTS.git
+pip install https://github.com/JarodMica/F5-TTS.git
 ```
 
 ### 2. Local editable (if also do training, finetuning)
 
 ```bash
-git clone https://github.com/SWivid/F5-TTS.git
+git clone https://github.com/JarodMica/F5-TTS.git
 cd F5-TTS
 # git submodule update --init --recursive  # (optional, if need bigvgan)
 pip install -e .
 ```
-If initialize submodule, you should add the following code at the beginning of `src/third_party/BigVGAN/bigvgan.py`.
+If you initialize submodule, you should add the following code at the beginning of `src/third_party/BigVGAN/bigvgan.py`.
 ```python
 import os
 import sys
@@ -61,7 +67,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 docker build -t f5tts:v1 .
 
 # Or pull from GitHub Container Registry
-docker pull ghcr.io/swivid/f5-tts:main
+docker pull ghcr.io/jarodmica/f5-tts:main
 ```
 
 
@@ -109,7 +115,7 @@ f5-tts_infer-cli -c src/f5_tts/infer/examples/multi/story.toml
 ### 3. More instructions
 
 - In order to have better generation results, take a moment to read [detailed guidance](src/f5_tts/infer).
-- The [Issues](https://github.com/SWivid/F5-TTS/issues?q=is%3Aissue) are very useful, please try to find the solution by properly searching the keywords of problem encountered. If no answer found, then feel free to open an issue.
+- The [Issues](https://github.com/SWivid/F5-TTS/issues?q=is%3Aissue) in the main repo are very useful, please try to find the solution by properly searching the keywords of problem encountered. If no answer found, then feel free to open an issue.
 
 
 ## Training
