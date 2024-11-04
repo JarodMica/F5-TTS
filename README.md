@@ -32,6 +32,10 @@ I won't be as active in keeping up with all the updates to the main repo, so if 
 conda create -n f5-tts python=3.10
 conda activate f5-tts
 
+# I am using venv at py 3.11
+py -3.11 -m venv venv
+venv\Scripts\activate
+
 # Install pytorch with your CUDA version, e.g.
 # torch >= 2.4 is needed for duration model
 pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu118
