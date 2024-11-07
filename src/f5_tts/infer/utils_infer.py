@@ -15,7 +15,7 @@ import hashlib
 import re
 import tempfile
 
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, hf_hub_download
 from importlib.resources import files
 from pathlib import Path
 from pydub import AudioSegment, silence
@@ -93,8 +93,12 @@ def load_vocoder(vocoder_name="vocos", is_local=False, local_path="", device=dev
     if vocoder_name == "vocos":
         if is_local:
             print(f"Load vocos from local path {local_path}")
-            vocoder = Vocos.from_hparams(f"{local_path}/config.yaml")
-            state_dict = torch.load(f"{local_path}/pytorch_model.bin", map_location="cpu")
+            repo_id = "charactr/vocos-mel-24khz"
+            revision = None
+            config_path = hf_hub_download(repo_id=repo_id, cache_dir=local_path, filename="config.yaml", revision=revision)
+            model_path = hf_hub_download(repo_id=repo_id, cache_dir=local_path, filename="pytorch_model.bin", revision=revision)
+            vocoder = Vocos.from_hparams(config_path=config_path)
+            state_dict = torch.load(model_path, map_location="cpu")
             vocoder.load_state_dict(state_dict)
             vocoder = vocoder.eval().to(device)
         else:
@@ -217,20 +221,21 @@ def load_model(
     return model
 
 
-def fetch_from_hub(hf_repo: str) -> Path:
+def fetch_from_hub(hf_repo: str, cache_dir: None | str) -> Path:
     model_path = Path(
         snapshot_download(
             repo_id=hf_repo,
             allow_patterns=["*.safetensors", "*.txt"],
+            cache_dir=cache_dir
         )
     )
     return model_path
 
 
-def load_duration_model(hf_model_name_or_path="lucasnewman/f5-tts-mlx"):
+def load_duration_model(hf_model_name_or_path="lucasnewman/f5-tts-mlx", cache_dir=None):
     from f5_tts.model.modules import DurationPredictor, DurationTransformer
 
-    path = fetch_from_hub(hf_model_name_or_path)
+    path = fetch_from_hub(hf_model_name_or_path, cache_dir)
 
     duration_model_path = path / "duration_v2.safetensors"
     duration_predictor = None
