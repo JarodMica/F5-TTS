@@ -140,6 +140,14 @@ def convert_char_to_pinyin(text_list, polyphone=True):
         {"“": '"', "”": '"', "‘": "'", "’": "'"}
     )  # in case librispeech (orig no-pc) test-clean
     custom_trans = str.maketrans({";": ","})  # add custom trans here, to address oov
+
+    def is_japanese(c):
+        return (
+            "\u3040" <= c <= "\u309f"  # Hiragana
+            or "\u30a0" <= c <= "\u30ff"  # Katakana
+            or "\uff66" <= c <= "\uff9f"  # Half-width Katakana
+        )
+
     for text in text_list:
         char_list = []
         text = text.translate(god_knows_why_en_testset_contains_zh_quote)
@@ -154,15 +162,19 @@ def convert_char_to_pinyin(text_list, polyphone=True):
                 seg = lazy_pinyin(seg, style=Style.TONE3, tone_sandhi=True)
                 for c in seg:
                     if c not in "。，、；：？！《》【】—…":
-                        char_list.append(" ")
+                        if not char_list or not is_japanese(char_list[-1]):
+                            char_list.append(" ")
                     char_list.append(c)
             else:  # if mixed chinese characters, alphabets and symbols
                 for c in seg:
                     if ord(c) < 256:
                         char_list.extend(c)
+                    elif is_japanese(c):
+                        char_list.append(c)
                     else:
                         if c not in "。，、；：？！《》【】—…":
-                            char_list.append(" ")
+                            if not char_list or not is_japanese(char_list[-1]):
+                                char_list.append(" ")
                             char_list.extend(lazy_pinyin(c, style=Style.TONE3, tone_sandhi=True))
                         else:  # if is zh punc
                             char_list.append(c)
