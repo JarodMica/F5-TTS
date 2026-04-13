@@ -19,7 +19,6 @@ from huggingface_hub import snapshot_download, hf_hub_download
 from importlib.resources import files
 from pathlib import Path
 from pydub import AudioSegment, silence
-from transformers import pipeline
 from vocos import Vocos
 
 from f5_tts.model import CFM
@@ -125,8 +124,17 @@ def load_vocoder(vocoder_name="vocos", is_local=False, local_path="", device=dev
 asr_pipe = None
 
 
+def clear_runtime_caches():
+    global _ref_audio_cache
+    global asr_pipe
+    _ref_audio_cache.clear()
+    asr_pipe = None
+
+
 def initialize_asr_pipeline(device=device):
     global asr_pipe
+    from transformers import pipeline
+
     asr_pipe = pipeline(
         "automatic-speech-recognition",
         model="openai/whisper-large-v3-turbo",
